@@ -26,6 +26,25 @@ variable "mysql_sg_tags" {
   }
 }
 
+variable "backend_sg_tags" {
+  default = {
+    Component = "backend"
+  }
+}
+
+variable "frontend_sg_tags" {
+  default = {
+    Component = "frontend"
+  }
+}
+
+variable "bastion_sg_tags" {
+  default = {
+    Component = "bastion"
+  }
+}
+
+
 
 
 
