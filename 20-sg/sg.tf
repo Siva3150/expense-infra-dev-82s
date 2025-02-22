@@ -42,6 +42,18 @@ module "bastion_sg" {
 
 }
 
+module "ansible_sg" {
+    source = "../../terraform-aws-security-group-82s"
+    project_name = var.project_name
+    environment = var.environment
+    sg_name = "ansible"
+    vpc_id = local.vpc_id
+    common_tags = var.common_tags
+    sg_tags = var.ansible_sg_tags
+
+}
+
+
 # MySQL allowing connection on 3306 from the instances attached to Backend SG
 resource "aws_security_group_rule" "backend_mysql" {
   type              = "ingress"
@@ -96,3 +108,53 @@ resource "aws_security_group_rule" "bastion_frontend" {
   source_security_group_id = module.bastion_sg.id
   security_group_id = module.frontend_sg.id
 }
+
+
+
+resource "aws_security_group_rule" "ansible_mysql" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.ansible_sg.id
+  security_group_id = module.mysql_sg.id
+}
+
+resource "aws_security_group_rule" "ansible_backend" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.ansible_sg.id
+  security_group_id = module.backend_sg.id
+}
+
+resource "aws_security_group_rule" "ansible_frontend" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.ansible_sg.id
+  security_group_id = module.frontend_sg.id
+}
+
+resource "aws_security_group_rule" "public_ansible" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.ansible_sg.id
+}
+
+
+resource "aws_security_group_rule" "public_bastion" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = module.bastion_sg.id
+}
+
+
